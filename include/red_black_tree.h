@@ -16,6 +16,8 @@
 template<typename Key, typename Value>
 class red_black_tree {
 public:
+    // return the value which is stored for a specific key
+    // will be empty if key is not found
     [[nodiscard]] std::optional<Value> get(const Key &key) const {
         const Node *node = root.get();
         while (node != nullptr) {
@@ -31,11 +33,13 @@ public:
         return {};
     }
 
+    // store value with a key
     void put(const Key &key, const Value &val) {
         root = put(root, key, val);
         root->color = Color::BLACK; // root is always black
     }
 
+    // return smallest key (or nothing if tree is empty)
     [[nodiscard]] std::optional<Key> min() const {
         if (root == nullptr) {
             return {};
@@ -49,7 +53,7 @@ public:
         return {node->key};
     }
 
-
+    // return largest key (or nothing if tree is empty)
     [[nodiscard]] std::optional<Key> max() const {
         if (root == nullptr) {
             return {};
@@ -63,10 +67,12 @@ public:
         return {node->key};
     }
 
+    // return number of elements in tree
     [[nodiscard]] int size() const {
         return size(root.get());
     }
 
+    // return all keys stored in the tree
     [[nodiscard]] std::vector<Key> keys() const {
         std::vector<Key> keys{};
         keys.reserve(size());
@@ -74,6 +80,7 @@ public:
         return keys;
     }
 
+    // return string-representation of tree values
     [[nodiscard]] std::string toString() const {
         if (root != nullptr) {
             return root->toString();
@@ -83,6 +90,7 @@ public:
     }
 
 private:
+    // types of links
     enum class Color {
         RED, BLACK
     };
@@ -99,13 +107,14 @@ private:
         std::unique_ptr<Node> left;
         std::unique_ptr<Node> right;
 
+        // return string-representation of this node and all children
         [[nodiscard]] std::string toString() const {
             std::stringstream ss;
             print(ss, "", "");
             return ss.str();
         }
 
-        /// helper function to check color of valid and null nodes
+        // helper function to check color of valid and null nodes
         static bool isRed(const Node *node) {
             if (node == nullptr) {
                 // null links are black
@@ -116,6 +125,7 @@ private:
 
 
     private:
+        // helper function to generate string representation
         void print(std::stringstream &ss, const std::string &prefix, const std::string &childrenPrefix) const {
             ss << prefix << key << "\n";
             const char *strRED = "(red)";
@@ -141,6 +151,7 @@ private:
         return Node::isRed(node);
     }
 
+    // helper function for balancing the red-black tree
     std::unique_ptr<Node> rotateLeft(std::unique_ptr<Node> &h) {
         assert(isRed(h->right.get()));
         std::unique_ptr<Node> x = std::move(h->right);
@@ -154,6 +165,7 @@ private:
         return x;
     }
 
+    // helper function for balancing the red-black tree
     std::unique_ptr<Node> rotateRight(std::unique_ptr<Node> &h) {
         assert(isRed(h->left.get()));
         std::unique_ptr<Node> x = std::move(h->left);
@@ -167,6 +179,7 @@ private:
         return x;
     }
 
+    // helper function for balancing the red-black tree
     void flipColors(Node *h) {
         assert(!isRed(h));
         assert(isRed(h->left.get()));
@@ -176,9 +189,10 @@ private:
         h->right->color = Color::BLACK;
     }
 
-
+    // root node
     std::unique_ptr<Node> root;
 
+    // helper function for storing values
     std::unique_ptr<Node> put(std::unique_ptr<Node> &node, const Key &key, const Value &val) {
         if (node == nullptr) {
             return std::make_unique<Node>(key, val, Color::RED);
@@ -209,6 +223,7 @@ private:
         return std::move(node);
     }
 
+    // helper function for size calculation
     [[nodiscard]] int size(const Node *node) const {
         if (node == nullptr) {
             return 0;
@@ -216,6 +231,7 @@ private:
         return node->count;
     }
 
+    // helper function for storing keys inorder in a vector
     void inorder(const Node *node, std::vector<Key> &keys) const {
         if (node == nullptr) {
             return;
@@ -227,6 +243,7 @@ private:
 
 };
 
+// helper for printing a red-black tree
 template<typename Key, typename Val>
 std::ostream &operator<<(std::ostream &os, const red_black_tree<Key, Val> &bst) {
     return os << "RedBlackTree (r=right child, l=left child)\n" << bst.toString() << "\n";
