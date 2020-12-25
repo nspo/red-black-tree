@@ -1,5 +1,7 @@
 #include "red_black_tree.h"
 #include <iostream>
+#include <chrono>
+#include <random>
 
 int main() {
     std::cout << "Test of a left-leaning red-black tree implementation\n";
