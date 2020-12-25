@@ -1,4 +1,7 @@
-#include <iostream>
+#ifndef RED_BLACK_TREE_RED_BLACK_TREE_H
+#define RED_BLACK_TREE_RED_BLACK_TREE_H
+
+
 #include <optional>
 #include <utility>
 #include <vector>
@@ -12,10 +15,10 @@
  * Left-leaning red-black tree (Sedgewick 2008)
  */
 template<typename Key, typename Value>
-class RedBlackTree {
+class red_black_tree {
 public:
-    [[nodiscard]] std::optional<Value> get(const Key& key) const {
-        const Node* node = root.get();
+    [[nodiscard]] std::optional<Value> get(const Key &key) const {
+        const Node *node = root.get();
         while (node != nullptr) {
             if (key < node->key) {
                 node = node->left.get();
@@ -29,7 +32,7 @@ public:
         return {};
     }
 
-    void put(const Key& key, const Value& val) {
+    void put(const Key &key, const Value &val) {
         root = put(root, key, val);
         root->color = Color::BLACK; // root is always black
     }
@@ -39,7 +42,7 @@ public:
             return {};
         }
 
-        const Node* node = root.get();
+        const Node *node = root.get();
         while (node->left != nullptr) {
             node = node->left.get();
         }
@@ -53,7 +56,7 @@ public:
             return {};
         }
 
-        const Node* node = root.get();
+        const Node *node = root.get();
         while (node->right != nullptr) {
             node = node->right.get();
         }
@@ -66,14 +69,14 @@ public:
     }
 
     [[nodiscard]] std::vector<Key> keys() const {
-        std::vector<Key> keys {};
+        std::vector<Key> keys{};
         keys.reserve(size());
         inorder(root.get(), keys);
         return keys;
     }
 
     [[nodiscard]] std::string toString() const {
-        if(root != nullptr) {
+        if (root != nullptr) {
             return root->toString();
         } else {
             return "";
@@ -87,7 +90,8 @@ private:
 
     class Node {
     public:
-        Node(Key key1, Value val1, Color color1) : key(std::move(key1)), val(std::move(val1)), color(std::move(color1)) {}
+        Node(Key key1, Value val1, Color color1) : key(std::move(key1)), val(std::move(val1)),
+                                                   color(std::move(color1)) {}
 
         Key key;
         Value val;
@@ -103,8 +107,8 @@ private:
         }
 
         /// helper function to check color of valid and null nodes
-        static bool isRed(const Node* node) {
-            if(node == nullptr) {
+        static bool isRed(const Node *node) {
+            if (node == nullptr) {
                 // null links are black
                 return false;
             }
@@ -113,31 +117,32 @@ private:
 
 
     private:
-        void print(std::stringstream& ss, const std::string& prefix, const std::string& childrenPrefix) const {
+        void print(std::stringstream &ss, const std::string &prefix, const std::string &childrenPrefix) const {
             ss << prefix << key << "\n";
-            const char* strRED = "(red)";
-            const char* strBLK = "(blk)";
+            const char *strRED = "(red)";
+            const char *strBLK = "(blk)";
             if (right != nullptr) {
-                std::string newPrefix = childrenPrefix + "├r"+(isRed(right.get()) ? strRED : strBLK)+"── ";
+                std::string newPrefix = childrenPrefix + "├r" + (isRed(right.get()) ? strRED : strBLK) + "── ";
                 std::string newChildrenPrefix = childrenPrefix + "|     ";
-                if(left == nullptr) {
-                    newPrefix = childrenPrefix + "└r"+(isRed(right.get()) ? strRED : strBLK)+"── ";
+                if (left == nullptr) {
+                    newPrefix = childrenPrefix + "└r" + (isRed(right.get()) ? strRED : strBLK) + "── ";
                     newChildrenPrefix = childrenPrefix + "     ";
                 }
                 right->print(ss, newPrefix, newChildrenPrefix);
             }
             if (left != nullptr) {
-                left->print(ss, childrenPrefix + "└l"+(isRed(left.get()) ? strRED : strBLK)+"── ", childrenPrefix + "     ");
+                left->print(ss, childrenPrefix + "└l" + (isRed(left.get()) ? strRED : strBLK) + "── ",
+                            childrenPrefix + "     ");
             }
         }
     };
 
     /// helper function to check color of valid and null nodes
-    static bool isRed(const Node* node) {
+    static bool isRed(const Node *node) {
         return Node::isRed(node);
     }
 
-    std::unique_ptr<Node> rotateLeft(std::unique_ptr<Node>& h) {
+    std::unique_ptr<Node> rotateLeft(std::unique_ptr<Node> &h) {
         assert(isRed(h->right.get()));
         std::unique_ptr<Node> x = std::move(h->right);
         h->right = std::move(x->left);
@@ -150,7 +155,7 @@ private:
         return x;
     }
 
-    std::unique_ptr<Node> rotateRight(std::unique_ptr<Node>& h) {
+    std::unique_ptr<Node> rotateRight(std::unique_ptr<Node> &h) {
         assert(isRed(h->left.get()));
         std::unique_ptr<Node> x = std::move(h->left);
         h->left = std::move(x->right);
@@ -163,7 +168,7 @@ private:
         return x;
     }
 
-    void flipColors(Node* h) {
+    void flipColors(Node *h) {
         assert(!isRed(h));
         assert(isRed(h->left.get()));
         assert(isRed(h->right.get()));
@@ -175,12 +180,12 @@ private:
 
     std::unique_ptr<Node> root;
 
-    std::unique_ptr<Node> put(std::unique_ptr<Node>& node, const Key& key, const Value& val) {
+    std::unique_ptr<Node> put(std::unique_ptr<Node> &node, const Key &key, const Value &val) {
         if (node == nullptr) {
             return std::make_unique<Node>(key, val, Color::RED);
         }
 
-        if(key < node->key) {
+        if (key < node->key) {
             // go left
             node->left = put(node->left, key, val);
         } else if (key > node->key) {
@@ -194,10 +199,10 @@ private:
         if (isRed(node->right.get()) && !isRed(node->left.get())) {
             node = rotateLeft(node);
         }
-        if(isRed(node->left.get()) && isRed(node->left->left.get())) {
+        if (isRed(node->left.get()) && isRed(node->left->left.get())) {
             node = rotateRight(node);
         }
-        if(isRed(node->left.get()) && isRed(node->right.get())) {
+        if (isRed(node->left.get()) && isRed(node->right.get())) {
             flipColors(node.get());
         }
 
@@ -205,15 +210,15 @@ private:
         return std::move(node);
     }
 
-    [[nodiscard]] int size(const Node* node) const {
+    [[nodiscard]] int size(const Node *node) const {
         if (node == nullptr) {
             return 0;
         }
         return node->count;
     }
 
-    void inorder(const Node* node, std::vector<Key>& keys) const {
-        if(node == nullptr) {
+    void inorder(const Node *node, std::vector<Key> &keys) const {
+        if (node == nullptr) {
             return;
         }
         inorder(node->left.get(), keys);
@@ -223,69 +228,10 @@ private:
 
 };
 
-template<typename Key,typename Val>
-std::ostream& operator<<(std::ostream &os, const RedBlackTree<Key,Val>& bst) {
+template<typename Key, typename Val>
+std::ostream &operator<<(std::ostream &os, const red_black_tree<Key, Val> &bst) {
     return os << "RedBlackTree (r=right child, l=left child)\n" << bst.toString() << "\n";
 }
 
-int main() {
-    std::cout << "Test of a left-leaning red-black tree implementation\n";
-    std::cout << "----------------\n";
-    std::cout << "Basic check: \n";
-    // prepare to fill with random data
-    std::random_device dev;
-    std::mt19937 rng(dev());
 
-    {
-        std::uniform_int_distribution<std::mt19937::result_type> dist_small(std::numeric_limits<int>::min()/100000,std::numeric_limits<int>::max()/100000);
-
-        const int NUM_ELEMENTS = 16;
-        std::cout << "- Fill tree with "<<NUM_ELEMENTS<<" random elements\n";
-        std::cout << "- Print tree\n";
-        RedBlackTree<int,int> rbt;
-        for(int i=0; i<NUM_ELEMENTS; ++i) {
-            rbt.put(dist_small(rng), i);
-        }
-
-        std::cout << rbt;
-    }
-
-
-    std::cout << "----------------\n";
-    std::cout << "Performance check: \n";
-    std::cout << "- Execute N initial put operations with random data\n";
-    std::cout << "- Calculate how fast further put operations are by executing 1000 more\n";
-    std::cout << "- Multiply N by 10\n\n";
-
-    {
-        std::uniform_int_distribution<std::mt19937::result_type> dist_int(std::numeric_limits<int>::min(),
-                                                                          std::numeric_limits<int>::max());
-
-        int iter = 0;
-        const int max_iter = 6; // how many times to multiply number of initial random insertions by 10
-        while (iter < max_iter) {
-            RedBlackTree<int, int> rbt;
-            auto start_time = std::chrono::high_resolution_clock::now();
-            const int num_initial_puts = 1000 * static_cast<int>(pow(10, iter));
-            for (int i = 0; i < num_initial_puts; ++i) {
-                rbt.put(dist_int(rng), i);
-            }
-            std::chrono::duration<double> exec_duration = std::chrono::high_resolution_clock::now() - start_time;
-            std::cout << num_initial_puts << " initial puts with random keys took " << exec_duration.count() * 1000
-                      << " ms\n";
-
-            std::cout << "1000 more puts took ";
-            start_time = std::chrono::high_resolution_clock::now();
-            for (int i = 0; i < 1000; ++i) {
-                rbt.put(dist_int(rng), i);
-            }
-            exec_duration = std::chrono::high_resolution_clock::now() - start_time;
-            std::cout << exec_duration.count() * 1000 << " ms (" << exec_duration.count() / 1000 * 1e6
-                      << " us/put)\n---\n";
-
-            ++iter;
-        }
-    }
-
-    return 0;
-}
+#endif //RED_BLACK_TREE_RED_BLACK_TREE_H

@@ -1,3 +1,8 @@
+.idea/
+cmake-build-debug/
+build/
+red_black_tree_test
+
 # Prerequisites
 *.d
 
